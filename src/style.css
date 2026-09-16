@@ -1,35 +1,46 @@
-:root {
-  color-scheme: light;
-  font-family: system-ui, sans-serif;
-  background: #f5f7f3;
-  color: #203329;
-}
-
-body {
-  min-height: 100vh;
-  margin: 0;
-  display: grid;
-  place-items: center;
-}
-
-main {
-  box-sizing: border-box;
-  width: min(90vw, 560px);
-  padding: 48px;
-  border-radius: 24px;
-  background: white;
-  box-shadow: 0 18px 60px #20332914;
-}
-
-h1 {
-  margin: 0 0 12px;
-  font-size: clamp(2.5rem, 7vw, 4rem);
-  letter-spacing: -.05em;
-}
-
-p {
-  margin: 0;
-  color: #586b5f;
-  font-size: 1.1rem;
-  line-height: 1.6;
-}
+:root { font-family: Inter, Pretendard, system-ui, sans-serif; color: #213b30; background: #f6f8f2; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; }
+a { color: inherit; }
+button, select { font: inherit; }
+.shell { width: min(1120px, calc(100% - 40px)); margin: auto; padding-bottom: 80px; }
+header { display: flex; align-items: center; justify-content: space-between; padding: 28px 0; border-bottom: 1px solid #dfe8df; color: #60756a; }
+.brand { font-size: 1.65rem; font-weight: 800; letter-spacing: -.07em; text-decoration: none; color: #235c3d; }
+.intro { padding: 66px 0 40px; }
+.eyebrow { color: #38774d; font-weight: 700; }
+h1 { margin: 8px 0 12px; font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1.12; letter-spacing: -.06em; }
+.intro > p:last-child { color: #657a6e; font-size: 1.08rem; }
+.filters { display: flex; gap: 12px; margin-bottom: 28px; }
+.filters label { display: flex; align-items: center; gap: 8px; color: #4f6658; }
+select { border: 1px solid #ccdccc; border-radius: 10px; padding: 10px 34px 10px 12px; background: white; color: #213b30; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.card { overflow: hidden; border-radius: 18px; background: white; text-decoration: none; box-shadow: 0 8px 32px #20452b10; transition: transform .15s ease, box-shadow .15s ease; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 12px 38px #20452b1f; }
+.photo, .detailPhoto { display: grid; place-items: center; background: #e4ede1; color: #739780; }
+.photo { height: 230px; font-size: 4rem; }
+.photo img, .detailPhoto img { width: 100%; height: 100%; object-fit: cover; }
+.cardBody { padding: 20px; }
+.tag { display: inline-block; padding: 6px 10px; border-radius: 99px; background: #e5f3e8; color: #236638; font-size: .8rem; font-weight: 700; }
+.card h2 { margin: 14px 0 6px; font-size: 1.3rem; }
+.card p { margin: 0; color: #738174; }
+.message { padding: 60px 20px; text-align: center; color: #697b6d; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 22px; margin-top: 34px; }
+.pagination button { border: 1px solid #c8d9c8; border-radius: 10px; background: white; padding: 9px 18px; color: #24543a; cursor: pointer; }
+.pagination button:disabled { opacity: .45; cursor: default; }
+.back { display: inline-block; margin: 32px 0; text-decoration: none; color: #2d6844; }
+.detail { display: grid; grid-template-columns: 1fr 1fr; gap: 42px; }
+.detailPhoto { min-height: 500px; border-radius: 20px; overflow: hidden; font-size: 6rem; }
+.detailBody { padding-top: 16px; }
+.detailBody h1 { margin-top: 18px; }
+dl { border-top: 1px solid #dbe5dc; margin-top: 36px; }
+dl div { display: flex; gap: 20px; border-bottom: 1px solid #dbe5dc; padding: 14px 0; }
+dt { min-width: 90px; color: #718477; }
+dd { margin: 0; }
+.description { line-height: 1.7; }
+.shelter { display: flex; flex-direction: column; gap: 8px; margin-top: 32px; padding: 20px; border-radius: 14px; background: #e7efe5; }
+.shelter a { color: #236638; }
+.home { width: min(90vw, 560px); margin: 12vh auto; padding: 48px; border-radius: 24px; background: white; box-shadow: 0 18px 60px #20332914; }
+.home p { color: #586b5f; }
+.home a { display: inline-block; margin-top: 24px; color: #236638; }
+@media (max-width: 760px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .detail { grid-template-columns: 1fr; } .detailPhoto { min-height: 360px; } }
+@media (max-width: 520px) { .shell { width: min(100% - 28px, 1120px); } header span { display: none; } .intro { padding: 44px 0 24px; } .filters { flex-direction: column; align-items: flex-start; } .cards { grid-template-columns: 1fr; } .photo { height: 260px; } }
