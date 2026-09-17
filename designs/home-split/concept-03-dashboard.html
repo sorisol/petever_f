@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Petever 홈 시안 03 — 정보형</title><link rel="stylesheet" href="styles.css"></head>
+<body class="dashboard">
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  <header class="dash-head"><a class="wordmark" href="#"><span class="wordmark-mark">P</span>Petever</a><nav class="dash-nav" aria-label="주요 메뉴"><a class="active" href="#">홈</a><a href="#rescue">구조동물</a><a href="#lost">분실동물</a><a href="#">서비스 안내</a></nav><div class="dash-actions"><button class="icon-button" aria-label="검색">⌕</button><a class="report-button" href="#lost">+ 분실 신고</a></div></header>
+  <main class="dash-main" id="main">
+    <section class="dash-intro"><div><span class="overline" lang="en" style="text-transform:none">Every life, ever loved</span><h1>다시 만나는 날까지,<br>곁을 지켜요.</h1></div><p>보호 중인 동물에게는 새로운 가족을, 길을 잃은 동물에게는 돌아갈 길을 연결합니다.</p></section>
+    <section class="summary-bar" aria-label="오늘의 현황">
+      <div class="summary-item summary-location"><i aria-hidden="true">⌖</i><div><span class="label">내 주변 지역</span><strong style="font-size:17px">서울특별시 마포구 <span aria-hidden="true">⌄</span></strong></div></div>
+      <div class="summary-item"><span class="label">보호 중</span><strong>248</strong></div><div class="summary-item"><span class="label">오늘 구조</span><strong>12</strong></div><div class="summary-item"><span class="label">최근 분실</span><strong style="color:#df604c">31</strong></div>
+    </section>
+    <section class="dash-section" id="rescue">
+      <div class="dash-section-head"><div class="dash-title-row"><span class="dash-icon" aria-hidden="true">⌂</span><div><h2>구조동물</h2><p>새로운 가족을 기다리는 동물이에요</p></div></div><div class="filter-row"><button class="filter-chip active">전체</button><button class="filter-chip">강아지</button><button class="filter-chip">고양이</button><button class="filter-chip">거리순 <span aria-hidden="true">↕</span></button></div></div>
+      <div class="dash-grid">
+        <article class="dash-card"><div class="dash-card-photo"><img src="https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=600&q=85" alt="갈색 귀 강아지"><span class="status">보호 중</span></div><div class="dash-card-copy"><h3>몽글이 · 믹스견</h3><p>서울 마포구 · 1.2km</p></div></article>
+        <article class="dash-card"><div class="dash-card-photo"><img src="https://images.unsplash.com/photo-1561948955-570b270e7c36?auto=format&fit=crop&w=600&q=85" alt="초록 눈 고양이"><span class="status">입양 가능</span></div><div class="dash-card-copy"><h3>여름이 · 코숏</h3><p>서울 은평구 · 3.8km</p></div></article>
+        <article class="dash-card"><div class="dash-card-photo"><img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=600&q=85" alt="작은 강아지"><span class="status">보호 중</span></div><div class="dash-card-copy"><h3>두부 · 말티즈</h3><p>서울 서대문구 · 4.1km</p></div></article>
+        <article class="dash-card"><div class="dash-card-photo"><img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=600&q=85" alt="노란 눈 고양이"><span class="status">공고 중</span></div><div class="dash-card-copy"><h3>별이 · 코숏</h3><p>서울 용산구 · 5.7km</p></div></article>
+      </div>
+    </section>
+    <section class="dash-section lost-dash" id="lost">
+      <div class="dash-section-head"><div class="dash-title-row"><span class="dash-icon" aria-hidden="true">!</span><div><h2>분실동물</h2><p>최근 접수 순 · 목격했다면 바로 제보해 주세요</p></div></div><div class="filter-row"><button class="filter-chip active" style="background:#df604c;border-color:#df604c">최근 접수</button><button class="filter-chip">내 주변 5km</button><button class="filter-chip">지도 보기</button></div></div>
+      <div class="lost-table">
+        <article class="lost-row"><img src="https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=300&q=85" alt="보리"><div><strong>보리를 찾습니다</strong><small>갈색 믹스견 · 빨간 목줄</small></div><div class="place"><strong>서울 마포구 연남동</strong><small>경의선숲길 인근</small></div><div class="date"><span class="urgent">2시간 전</span></div><a class="row-link" href="#">상세보기</a></article>
+        <article class="lost-row"><img src="https://images.unsplash.com/photo-1495360010541-f48722b34f7d?auto=format&fit=crop&w=300&q=85" alt="하루"><div><strong>하루를 찾습니다</strong><small>회색 코숏 · 초록 눈</small></div><div class="place"><strong>서울 은평구 응암동</strong><small>불광천 산책로</small></div><div class="date"><span class="urgent">5시간 전</span></div><a class="row-link" href="#">상세보기</a></article>
+        <article class="lost-row"><img src="https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=300&q=85" alt="호두"><div><strong>호두를 찾습니다</strong><small>검정 믹스견 · 파란 하네스</small></div><div class="place"><strong>서울 서대문구 홍제동</strong><small>홍제천 폭포 인근</small></div><div class="date"><span class="urgent">어제</span></div><a class="row-link" href="#">상세보기</a></article>
+      </div>
+    </section>
+  </main>
+  <nav class="concept-bar" aria-label="시안 이동"><a class="all" href="index.html">전체 비교</a><a href="concept-01-editorial.html">01</a><a href="concept-02-immersive.html">02</a><a aria-current="page" href="concept-03-dashboard.html">03</a></nav>
+</body></html>
