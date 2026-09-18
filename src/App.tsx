@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import AnimalBrowser from './AnimalBrowser'
 
 type Animal = {
   id: number
@@ -87,13 +88,19 @@ function SectionState({
   return null
 }
 
+function isAnimalBrowserRoute(path: string) {
+  return path === '/animals' || path === '/animals/' || /^\/animals\/\d+\/?$/.test(path)
+}
+
 export default function App() {
+  const [path, setPath] = useState(window.location.pathname)
   const [species, setSpecies] = useState<Species>('')
   const [retryVersion, setRetryVersion] = useState(0)
   const [shelter, setShelter] = useState<LoadState>(initialState)
   const [lost, setLost] = useState<LoadState>(initialState)
 
   useEffect(() => {
+    if (isAnimalBrowserRoute(path)) return
     const controller = new AbortController()
     const speciesQuery = species ? `&species=${species}` : ''
     setShelter({ page: null, loading: true, error: false })
@@ -112,9 +119,10 @@ export default function App() {
       })
 
     return () => controller.abort()
-  }, [species, retryVersion])
+  }, [path, species, retryVersion])
 
   useEffect(() => {
+    if (isAnimalBrowserRoute(path)) return
     const controller = new AbortController()
     setLost((current) => ({ ...current, loading: true, error: false }))
 
@@ -129,11 +137,26 @@ export default function App() {
       })
 
     return () => controller.abort()
-  }, [retryVersion])
+  }, [path, retryVersion])
 
   const speciesLabel = species === 'DOG' ? '강아지' : species === 'CAT' ? '고양이' : '전체'
   const shelterAnimals = shelter.page?.content ?? []
   const lostAnimals = lost.page?.content ?? []
+
+  useEffect(() => {
+    const updatePath = () => setPath(window.location.pathname)
+    window.addEventListener('popstate', updatePath)
+    return () => window.removeEventListener('popstate', updatePath)
+  }, [])
+
+  const navigate = (to: string) => {
+    window.history.pushState({}, '', to)
+    setPath(to)
+  }
+
+  if (isAnimalBrowserRoute(path)) {
+    return <AnimalBrowser path={path} navigate={navigate} />
+  }
 
   return (
     <>
@@ -146,6 +169,9 @@ export default function App() {
           <a className="active" href="#main">홈</a>
           <a href="#rescue">구조동물</a>
           <a href="#lost">분실동물</a>
+          <a href="/animals" onClick={(event) => { event.preventDefault(); navigate('/animals') }}>
+            전체 동물 보기
+          </a>
         </nav>
       </header>
 

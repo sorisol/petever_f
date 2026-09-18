@@ -67,6 +67,7 @@ function mockPages(shelter = shelterPage, lost = lostPage) {
 afterEach(() => {
   cleanup()
   vi.unstubAllGlobals()
+  window.history.replaceState({}, '', '/')
 })
 
 describe('concept-03 animal dashboard', () => {
@@ -92,6 +93,29 @@ describe('concept-03 animal dashboard', () => {
       '/api/animals?listing_type=LOST_REPORT&size=8',
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     )
+  })
+
+  it('loads the home dashboard for an unknown animals path', async () => {
+    window.history.replaceState({}, '', '/animals/unknown')
+    mockPages()
+
+    render(<App />)
+
+    expect(await screen.findByText('몽글이 · 믹스견')).toBeTruthy()
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/animals?listing_type=SHELTER_ANIMAL&size=8',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    )
+  })
+
+  it('opens the existing animal browser from the home navigation', async () => {
+    mockPages()
+    render(<App />)
+    await screen.findByText('몽글이 · 믹스견')
+
+    fireEvent.click(screen.getByRole('link', { name: '전체 동물 보기' }))
+
+    expect(await screen.findByRole('heading', { name: '동물 소식 둘러보기' })).toBeTruthy()
   })
 
   it('refetches only shelter animals when the species filter changes', async () => {
