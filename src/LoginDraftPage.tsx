@@ -1,6 +1,15 @@
+import { useEffect } from 'react'
+
 type Navigate = (to: string, state?: Record<string, unknown>) => void
 
 export default function LoginDraftPage({ navigate, email }: { navigate: Navigate; email: string }) {
+  useEffect(() => {
+    if (window.history.state?.signupEmail !== undefined) {
+      const { signupEmail: _consumed, ...remaining } = window.history.state
+      window.history.replaceState(remaining, '', window.location.href)
+    }
+  }, [])
+
   return (
     <main className="auth-main" id="main">
       <section className="auth-card" aria-labelledby="login-title">

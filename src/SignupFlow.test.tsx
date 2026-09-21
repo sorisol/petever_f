@@ -110,6 +110,16 @@ describe('signup and login draft routes', () => {
     render(<App />)
     expect((screen.getByLabelText('이메일') as HTMLInputElement).value).toBe('')
   })
+
+  it('consumes the signup email so a reload starts with an empty field', () => {
+    window.history.replaceState({ signupEmail: 'user@example.com' }, '', '/login')
+    render(<App />)
+    expect((screen.getByLabelText('이메일') as HTMLInputElement).value).toBe('user@example.com')
+
+    cleanup()
+    render(<App />)
+    expect((screen.getByLabelText('이메일') as HTMLInputElement).value).toBe('')
+  })
 })
 
 function fillSignup(overrides: Partial<Record<'email' | 'password' | 'passwordConfirmation' | 'nickname', string>> = {}) {
