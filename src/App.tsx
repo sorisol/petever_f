@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import AnimalBrowser from './AnimalBrowser'
 import SignupPage from './SignupPage'
 import LoginDraftPage from './LoginDraftPage'
+import { csrfToken, isAccount, type Account } from './authApi'
 import './auth.css'
 
 type Animal = {
@@ -97,6 +98,8 @@ function isAnimalBrowserRoute(path: string) {
 
 export default function App() {
   const [path, setPath] = useState(window.location.pathname)
+  const [account, setAccount] = useState<Account | null>(null)
+  const [logoutError, setLogoutError] = useState('')
   const [species, setSpecies] = useState<Species>('')
   const [retryVersion, setRetryVersion] = useState(0)
   const [shelter, setShelter] = useState<LoadState>(initialState)
@@ -152,6 +155,32 @@ export default function App() {
     return () => window.removeEventListener('popstate', updatePath)
   }, [])
 
+  useEffect(() => {
+    if (account || path === '/signup' || path === '/login' || isAnimalBrowserRoute(path)) return
+    let active = true
+    void fetch('/api/auth/session').then(async (response) => {
+      if (!response.ok) return
+      const result: unknown = await response.json()
+      if (active && isAccount(result)) setAccount(result)
+    }).catch(() => {})
+    return () => { active = false }
+  }, [path, account])
+
+  const logout = async () => {
+    setLogoutError('')
+    try {
+      const token = await csrfToken()
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST', headers: { 'X-CSRF-TOKEN': token },
+      })
+      if (!response.ok) throw new Error('Logout failed')
+      setAccount(null)
+      navigate('/')
+    } catch {
+      setLogoutError('로그아웃하지 못했습니다. 다시 시도해 주세요.')
+    }
+  }
+
   const navigate = (to: string, state: Record<string, unknown> = {}) => {
     window.history.pushState(state, '', to)
     setPath(to)
@@ -161,7 +190,7 @@ export default function App() {
   if (path === '/login') {
     const email = typeof window.history.state?.signupEmail === 'string'
       ? window.history.state.signupEmail : ''
-    return <LoginDraftPage navigate={navigate} email={email} />
+    return <LoginDraftPage navigate={navigate} email={email} onLogin={setAccount} />
   }
 
   if (isAnimalBrowserRoute(path)) {
@@ -183,10 +212,16 @@ export default function App() {
             전체 동물 보기
           </a>
         </nav>
-        <a className="dash-signup" href="/signup" onClick={(event) => { event.preventDefault(); navigate('/signup') }}>회원가입</a>
+        <div className="dash-auth">
+          {account ? <><span>{account.nickname}</span><button type="button" className="dash-signup" onClick={logout}>로그아웃</button></> : <>
+            <a href="/login" onClick={(event) => { event.preventDefault(); navigate('/login') }}>로그인</a>
+            <a className="dash-signup" href="/signup" onClick={(event) => { event.preventDefault(); navigate('/signup') }}>회원가입</a>
+          </>}
+        </div>
       </header>
 
       <main className="dash-main" id="main">
+        {logoutError && <p role="alert">{logoutError}</p>}
         <section className="dash-intro">
           <div>
             <span className="overline" lang="en">Every life, ever loved</span>

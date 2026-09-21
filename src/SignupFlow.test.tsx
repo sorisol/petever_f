@@ -8,7 +8,7 @@ afterEach(() => {
   window.history.replaceState({}, '', '/')
 })
 
-describe('signup and login draft routes', () => {
+describe('signup and login routes', () => {
   it('renders accessible signup fields at /signup', () => {
     window.history.replaceState({}, '', '/signup')
     render(<App />)
@@ -20,18 +20,18 @@ describe('signup and login draft routes', () => {
     expect(screen.getByLabelText('전화번호 (선택)')).toBeTruthy()
   })
 
-  it('shows a disabled login draft at /login', () => {
+  it('shows an enabled login form at /login', () => {
     window.history.replaceState({}, '', '/login')
     render(<App />)
 
-    expect((screen.getByRole('button', { name: '로그인 기능 준비 중' }) as HTMLButtonElement).disabled).toBe(true)
+    expect((screen.getByRole('button', { name: '로그인' }) as HTMLButtonElement).disabled).toBe(false)
     expect((screen.getByLabelText('이메일') as HTMLInputElement).value).toBe('')
   })
 
   it('does not call the API for invalid input', async () => {
     window.history.replaceState({}, '', '/signup')
     const fetchMock = vi.fn()
-    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('fetch', withCsrf(fetchMock))
     render(<App />)
     fillSignup({ password: 'short', passwordConfirmation: 'different' })
     fireEvent.click(screen.getByRole('button', { name: '회원가입' }))
@@ -43,7 +43,7 @@ describe('signup and login draft routes', () => {
   it('rejects a multibyte password over 72 bytes before submitting', async () => {
     window.history.replaceState({}, '', '/signup')
     const fetchMock = vi.fn()
-    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('fetch', withCsrf(fetchMock))
     render(<App />)
     fillSignup({ password: '가'.repeat(25), passwordConfirmation: '가'.repeat(25) })
     fireEvent.click(screen.getByRole('button', { name: '회원가입' }))
@@ -56,7 +56,7 @@ describe('signup and login draft routes', () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       id: 7, email: 'user@example.com', nickname: '몽글집사',
     }), { status: 201 }))
-    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('fetch', withCsrf(fetchMock))
     window.history.replaceState({}, '', '/signup')
     render(<App />)
     fillSignup({ email: ' USER@Example.com ' })
@@ -64,7 +64,7 @@ describe('signup and login draft routes', () => {
 
     await screen.findByRole('heading', { name: '로그인' })
     expect(fetchMock).toHaveBeenCalledWith('/api/auth/signup', expect.objectContaining({
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': 'csrf-token' },
     }))
     expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
       email: 'user@example.com', password: 'valid-password', nickname: '몽글집사',
@@ -76,7 +76,7 @@ describe('signup and login draft routes', () => {
   it('prevents a second submission while the first request is pending', async () => {
     window.history.replaceState({}, '', '/signup')
     const fetchMock = vi.fn(() => new Promise<Response>(() => {}))
-    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('fetch', withCsrf(fetchMock))
     render(<App />)
     fillSignup()
     fireEvent.click(screen.getByRole('button', { name: '회원가입' }))
@@ -97,7 +97,7 @@ describe('signup and login draft routes', () => {
 
   it('shows a recoverable alert when the network fails', async () => {
     window.history.replaceState({}, '', '/signup')
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+    vi.stubGlobal('fetch', withCsrf(vi.fn().mockRejectedValue(new Error('offline'))))
     render(<App />)
     fillSignup()
     fireEvent.click(screen.getByRole('button', { name: '회원가입' }))
@@ -135,8 +135,15 @@ function fillSignup(overrides: Partial<Record<'email' | 'password' | 'passwordCo
 
 async function renderFailure(status: number, body: object) {
   window.history.replaceState({}, '', '/signup')
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(body), { status })))
+  vi.stubGlobal('fetch', withCsrf(vi.fn().mockResolvedValue(new Response(JSON.stringify(body), { status }))))
   render(<App />)
   fillSignup()
   fireEvent.click(screen.getByRole('button', { name: '회원가입' }))
+}
+
+
+function withCsrf(fetchMock: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>) {
+  return (input: RequestInfo | URL, init?: RequestInit) => String(input) === '/api/auth/csrf'
+    ? Promise.resolve(new Response(JSON.stringify({ token: 'csrf-token' })))
+    : fetchMock(input, init)
 }

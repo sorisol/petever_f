@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react'
+import { csrfToken } from './authApi'
 
 type Navigate = (to: string, state?: Record<string, unknown>) => void
 type Field = 'email' | 'password' | 'passwordConfirmation' | 'nickname' | 'phone'
@@ -40,9 +41,10 @@ export default function SignupPage({ navigate }: { navigate: Navigate }) {
     submitting.current = true
     setPending(true)
     try {
+      const token = await csrfToken()
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
         body: JSON.stringify({ email, password, passwordConfirmation, nickname, phone: phone || null }),
       })
       const result: unknown = await response.json()
