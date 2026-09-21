@@ -1,0 +1,15 @@
+.auth-main { min-height: 100vh; display: grid; place-items: center; padding: 44px 16px; background: radial-gradient(circle at 15% 10%, #dcebe1, transparent 35%), #f3f5f1; }
+.auth-card { width: min(100%, 470px); padding: clamp(28px, 6vw, 48px); border: 1px solid #dfe6dd; border-radius: 24px; background: #fff; box-shadow: 0 22px 60px rgb(31 67 47 / 8%); }
+.auth-wordmark { display: inline-block; margin-bottom: 40px; color: #1e5b43; font-size: 24px; font-weight: 800; text-decoration: none; letter-spacing: -.06em; }
+.auth-overline { display: block; color: #56806b; font-size: 11px; font-weight: 800; letter-spacing: .12em; }
+.auth-card h1 { margin: 8px 0 9px; font-size: 34px; letter-spacing: -.06em; }
+.auth-description { margin: 0 0 30px; color: #5d6c64; font-size: 14px; line-height: 1.6; }
+.auth-form { display: grid; gap: 17px; }
+.auth-form label { display: grid; gap: 8px; color: #334d3e; font-size: 13px; font-weight: 700; }
+.auth-form input { width: 100%; min-height: 46px; padding: 10px 13px; border: 1px solid #ccd9cf; border-radius: 9px; background: #fff; color: #1a2821; font: inherit; }
+.auth-form input:focus { outline: 2px solid #75aa85; outline-offset: 1px; }
+.auth-primary { min-height: 48px; margin-top: 9px; border: 0; border-radius: 9px; background: #1e5b43; color: white; font-weight: 800; }
+.auth-primary:disabled { background: #b5c6bb; cursor: not-allowed; }
+.auth-note { margin: 16px 0 0; color: #66756d; font-size: 12px; }
+.auth-bottom { margin: 28px 0 0; color: #66756d; font-size: 13px; text-align: center; }
+.auth-bottom a { color: #1e5b43; font-weight: 800; }

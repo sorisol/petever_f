@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import AnimalBrowser from './AnimalBrowser'
+import SignupPage from './SignupPage'
+import LoginDraftPage from './LoginDraftPage'
+import './auth.css'
 
 type Animal = {
   id: number
@@ -100,7 +103,7 @@ export default function App() {
   const [lost, setLost] = useState<LoadState>(initialState)
 
   useEffect(() => {
-    if (isAnimalBrowserRoute(path)) return
+    if (isAnimalBrowserRoute(path) || path === '/signup' || path === '/login') return
     const controller = new AbortController()
     const speciesQuery = species ? `&species=${species}` : ''
     setShelter({ page: null, loading: true, error: false })
@@ -122,7 +125,7 @@ export default function App() {
   }, [path, species, retryVersion])
 
   useEffect(() => {
-    if (isAnimalBrowserRoute(path)) return
+    if (isAnimalBrowserRoute(path) || path === '/signup' || path === '/login') return
     const controller = new AbortController()
     setLost((current) => ({ ...current, loading: true, error: false }))
 
@@ -149,9 +152,16 @@ export default function App() {
     return () => window.removeEventListener('popstate', updatePath)
   }, [])
 
-  const navigate = (to: string) => {
-    window.history.pushState({}, '', to)
+  const navigate = (to: string, state: Record<string, unknown> = {}) => {
+    window.history.pushState(state, '', to)
     setPath(to)
+  }
+
+  if (path === '/signup') return <SignupPage navigate={navigate} />
+  if (path === '/login') {
+    const email = typeof window.history.state?.signupEmail === 'string'
+      ? window.history.state.signupEmail : ''
+    return <LoginDraftPage navigate={navigate} email={email} />
   }
 
   if (isAnimalBrowserRoute(path)) {
@@ -173,6 +183,7 @@ export default function App() {
             전체 동물 보기
           </a>
         </nav>
+        <a className="dash-signup" href="/signup" onClick={(event) => { event.preventDefault(); navigate('/signup') }}>회원가입</a>
       </header>
 
       <main className="dash-main" id="main">
