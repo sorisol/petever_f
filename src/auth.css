@@ -8,6 +8,9 @@
 .auth-form label { display: grid; gap: 8px; color: #334d3e; font-size: 13px; font-weight: 700; }
 .auth-form input { width: 100%; min-height: 46px; padding: 10px 13px; border: 1px solid #ccd9cf; border-radius: 9px; background: #fff; color: #1a2821; font: inherit; }
 .auth-form input:focus { outline: 2px solid #75aa85; outline-offset: 1px; }
+.auth-form input[aria-invalid="true"] { border-color: #c85c49; }
+.auth-field-error, .auth-form-error { color: #b74737; font-size: 12px; font-weight: 500; }
+.auth-form-error { margin: 0; }
 .auth-primary { min-height: 48px; margin-top: 9px; border: 0; border-radius: 9px; background: #1e5b43; color: white; font-weight: 800; }
 .auth-primary:disabled { background: #b5c6bb; cursor: not-allowed; }
 .auth-note { margin: 16px 0 0; color: #66756d; font-size: 12px; }
