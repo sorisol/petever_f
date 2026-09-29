@@ -77,8 +77,7 @@ describe('concept-03 animal dashboard', () => {
     render(<App />)
 
     expect(await screen.findByText('몽글이 · 믹스견')).toBeTruthy()
-    expect(screen.getByText('이름 미상')).toBeTruthy()
-    expect(screen.getByText('품종 미상')).toBeTruthy()
+    expect(screen.getByText('이름 미상 · 품종 미상')).toBeTruthy()
     expect(screen.getByText('보호 중')).toBeTruthy()
     expect(screen.getByText('분실 신고')).toBeTruthy()
     expect(screen.getByText('248')).toBeTruthy()
@@ -93,6 +92,41 @@ describe('concept-03 animal dashboard', () => {
       '/api/animals?listing_type=LOST_REPORT&size=8',
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     )
+  })
+
+  it('places lost animals before shelter animals in the navigation and dashboard', async () => {
+    mockPages()
+    render(<App />)
+    await screen.findByText('분실 신고')
+
+    const navigation = screen.getByRole('navigation', { name: '주요 메뉴' })
+    const sectionLinks = Array.from(navigation.querySelectorAll('a[href="#lost"], a[href="#rescue"]'))
+      .map((link) => link.textContent)
+    expect(sectionLinks).toEqual(['분실동물', '구조동물'])
+
+    const lostSection = document.querySelector('#lost')
+    const shelterSection = document.querySelector('#rescue')
+    expect(lostSection).not.toBeNull()
+    expect(shelterSection).not.toBeNull()
+    expect(lostSection!.compareDocumentPosition(shelterSection!) & Node.DOCUMENT_POSITION_FOLLOWING)
+      .not.toBe(0)
+  })
+
+  it('renders lost animals with the same image-card structure as shelter animals', async () => {
+    mockPages()
+    render(<App />)
+    await screen.findByText('분실 신고')
+
+    const lostSection = document.querySelector('#lost')
+    const shelterSection = document.querySelector('#rescue')
+    const lostCard = lostSection?.querySelector('.dash-grid > .dash-card')
+    const shelterCard = shelterSection?.querySelector('.dash-grid > .dash-card')
+
+    expect(lostCard).not.toBeNull()
+    expect(shelterCard).not.toBeNull()
+    expect(lostCard?.querySelector('.dash-card-copy')).not.toBeNull()
+    expect(lostCard?.querySelector('.dash-card-photo .urgent')?.textContent).toBe('분실 신고')
+    expect(lostSection?.querySelector('.lost-table')).toBeNull()
   })
 
   it('loads the home dashboard for an unknown animals path', async () => {
