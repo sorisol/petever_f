@@ -61,7 +61,6 @@ export default function LoginDraftPage({ navigate, email, onLogin }: {
         <a className="auth-wordmark" href="/" onClick={(event) => { event.preventDefault(); navigate('/') }}>Petever</a>
         <span className="auth-overline">다시 만나서 반가워요</span>
         <h1 id="login-title">로그인</h1>
-        <p className="auth-description">회원가입을 마쳤다면 이메일이 미리 입력돼 있어요.</p>
         <form className="auth-form" onSubmit={submit} noValidate>
           <label>이메일<input name="email" type="email" autoComplete="email" defaultValue={email} /></label>
           <label>비밀번호<input name="password" type="password" autoComplete="current-password" /></label>
