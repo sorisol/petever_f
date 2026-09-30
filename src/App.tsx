@@ -73,6 +73,33 @@ function AnimalImage({ animal }: { animal: Animal }) {
   )
 }
 
+function AnimalCard({ animal }: { animal: Animal }) {
+  const name = text(animal.name, '이름 미상')
+  const breed = text(animal.breedName, '품종 미상')
+  const isLost = animal.listingType === 'LOST_REPORT'
+
+  return (
+    <article className="dash-card">
+      <div className="dash-card-photo">
+        <AnimalImage animal={animal} />
+        <span className={isLost ? 'urgent' : 'status'}>
+          {isLost ? '분실 신고' : statusLabels[animal.careStatus] ?? '상태 미상'}
+        </span>
+      </div>
+      <div className="dash-card-copy">
+        <h3>{name} · {breed}</h3>
+        <p>
+          {animal.species === 'DOG'
+            ? '강아지'
+            : animal.species === 'CAT'
+              ? '고양이'
+              : '기타 동물'}
+        </p>
+      </div>
+    </article>
+  )
+}
+
 function SectionState({
   loading,
   error,
@@ -206,8 +233,8 @@ export default function App() {
         </a>
         <nav className="dash-nav" aria-label="주요 메뉴">
           <a className="active" href="#main">홈</a>
-          <a href="#rescue">구조동물</a>
           <a href="#lost">분실동물</a>
+          <a href="#rescue">구조동물</a>
           <a href="/animals" onClick={(event) => { event.preventDefault(); navigate('/animals') }}>
             전체 동물 보기
           </a>
@@ -254,6 +281,28 @@ export default function App() {
           </div>
         )}
 
+        <section className="dash-section lost-dash" id="lost">
+          <div className="dash-section-head">
+            <div className="dash-title-row">
+              <span className="dash-icon" aria-hidden="true">!</span>
+              <div><h2>분실동물</h2><p>최근 등록된 분실 신고를 확인해 주세요</p></div>
+            </div>
+          </div>
+
+          <SectionState
+            loading={lost.loading}
+            error={lost.error}
+            empty={!lostAnimals.length}
+            emptyMessage="등록된 분실동물이 없습니다."
+            errorMessage="분실동물을 불러오지 못했습니다."
+          />
+          {!lost.loading && !lost.error && lostAnimals.length > 0 && (
+            <div className="dash-grid">
+              {lostAnimals.map((animal) => <AnimalCard animal={animal} key={animal.id} />)}
+            </div>
+          )}
+        </section>
+
         <section className="dash-section" id="rescue">
           <div className="dash-section-head">
             <div className="dash-title-row">
@@ -288,67 +337,11 @@ export default function App() {
           />
           {!shelter.loading && !shelter.error && shelterAnimals.length > 0 && (
             <div className="dash-grid">
-              {shelterAnimals.map((animal) => {
-                const name = text(animal.name, '이름 미상')
-                const breed = text(animal.breedName, '품종 미상')
-                return (
-                  <article className="dash-card" key={animal.id}>
-                    <div className="dash-card-photo">
-                      <AnimalImage animal={animal} />
-                      <span className="status">
-                        {statusLabels[animal.careStatus] ?? '상태 미상'}
-                      </span>
-                    </div>
-                    <div className="dash-card-copy">
-                      <h3>{name} · {breed}</h3>
-                      <p>
-                        {animal.species === 'DOG'
-                          ? '강아지'
-                          : animal.species === 'CAT'
-                            ? '고양이'
-                            : '기타 동물'}
-                      </p>
-                    </div>
-                  </article>
-                )
-              })}
+              {shelterAnimals.map((animal) => <AnimalCard animal={animal} key={animal.id} />)}
             </div>
           )}
         </section>
 
-        <section className="dash-section lost-dash" id="lost">
-          <div className="dash-section-head">
-            <div className="dash-title-row">
-              <span className="dash-icon" aria-hidden="true">!</span>
-              <div><h2>분실동물</h2><p>최근 등록된 분실 신고를 확인해 주세요</p></div>
-            </div>
-          </div>
-
-          <SectionState
-            loading={lost.loading}
-            error={lost.error}
-            empty={!lostAnimals.length}
-            emptyMessage="등록된 분실동물이 없습니다."
-            errorMessage="분실동물을 불러오지 못했습니다."
-          />
-          {!lost.error && lostAnimals.length > 0 && (
-            <div className="lost-table">
-              {lostAnimals.map((animal) => {
-                const name = text(animal.name, '이름 미상')
-                return (
-                  <article className="lost-row" key={animal.id}>
-                    <AnimalImage animal={animal} />
-                    <div>
-                      <strong>{name}</strong>
-                      <small>{text(animal.breedName, '품종 미상')}</small>
-                    </div>
-                    <span className="urgent">분실 신고</span>
-                  </article>
-                )
-              })}
-            </div>
-          )}
-        </section>
       </main>
     </>
   )
