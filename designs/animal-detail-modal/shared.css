@@ -162,8 +162,11 @@ img { display: block; width: 100%; }
 .action .thumbs { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
 .action .thumb { border-radius: 10px; }
 .action .detail { overflow-y: auto; padding: 42px 42px 36px; }
+.action .detail::-webkit-scrollbar-button, .action .modal::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
 .action-head { padding-right: 52px; }
+.action .quick { margin-bottom: 10px; }
 .action-priority { display: grid; gap: 10px; margin: 22px 0; }
+.action .quick + .action-priority { margin-top: 0; }
 .priority-card { padding: 16px; border-radius: 13px; background: #f0f5ed; }
 .priority-card small { display: block; margin-bottom: 6px; color: #4f6057; font-size: 12px; font-weight: 700; }
 .priority-card strong, .priority-card p { margin: 0; font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }

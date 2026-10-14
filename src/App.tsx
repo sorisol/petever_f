@@ -3,6 +3,7 @@ import AnimalBrowser from './AnimalBrowser'
 import SignupPage from './SignupPage'
 import LoginDraftPage from './LoginDraftPage'
 import { csrfToken, isAccount, type Account } from './authApi'
+import AnimalDetailModal from './AnimalDetailModal'
 import './auth.css'
 
 type Animal = {
@@ -57,9 +58,9 @@ function AnimalImage({ animal }: { animal: Animal }) {
 
   if (!animal.imageUrl || failed) {
     return (
-      <div className="animal-image fallback" role="img" aria-label={`${name} 사진 없음`}>
+      <span className="animal-image fallback" role="img" aria-label={`${name} 사진 없음`}>
         <span>사진 없음</span>
-      </div>
+      </span>
     )
   }
 
@@ -73,19 +74,26 @@ function AnimalImage({ animal }: { animal: Animal }) {
   )
 }
 
-function AnimalCard({ animal }: { animal: Animal }) {
+function AnimalCard({ animal, onOpen }: { animal: Animal; onOpen: (animal: Animal, opener: HTMLButtonElement) => void }) {
   const name = text(animal.name, '이름 미상')
   const breed = text(animal.breedName, '품종 미상')
   const isLost = animal.listingType === 'LOST_REPORT'
+  const statusText = isLost ? '분실 신고' : statusLabels[animal.careStatus] ?? '상태 미상'
+  const statusId = `animal-status-${animal.id}`
 
   return (
     <article className="dash-card">
-      <div className="dash-card-photo">
+      <button
+        className="dash-card-photo"
+        type="button"
+        aria-label={`${name} 상세 보기`}
+        aria-describedby={statusId}
+        aria-haspopup="dialog"
+        onClick={(event) => onOpen(animal, event.currentTarget)}
+      >
         <AnimalImage animal={animal} />
-        <span className={isLost ? 'urgent' : 'status'}>
-          {isLost ? '분실 신고' : statusLabels[animal.careStatus] ?? '상태 미상'}
-        </span>
-      </div>
+        <span id={statusId} className={isLost ? 'urgent' : 'status'}>{statusText}</span>
+      </button>
       <div className="dash-card-copy">
         <h3>{name} · {breed}</h3>
         <p>
@@ -131,6 +139,11 @@ export default function App() {
   const [retryVersion, setRetryVersion] = useState(0)
   const [shelter, setShelter] = useState<LoadState>(initialState)
   const [lost, setLost] = useState<LoadState>(initialState)
+  const [selected, setSelected] = useState<{
+    animal: Animal
+    opener: HTMLButtonElement
+    fallbackFocus: HTMLElement | null
+  } | null>(null)
 
   useEffect(() => {
     if (isAnimalBrowserRoute(path) || path === '/signup' || path === '/login') return
@@ -182,6 +195,8 @@ export default function App() {
     return () => window.removeEventListener('popstate', updatePath)
   }, [])
 
+  useEffect(() => setSelected(null), [path])
+
   useEffect(() => {
     if (account || path === '/signup' || path === '/login' || isAnimalBrowserRoute(path)) return
     let active = true
@@ -211,6 +226,16 @@ export default function App() {
   const navigate = (to: string, state: Record<string, unknown> = {}) => {
     window.history.pushState(state, '', to)
     setPath(to)
+  }
+
+  const openAnimal = (animal: Animal, opener: HTMLButtonElement) => {
+    setSelected({ animal, opener, fallbackFocus: opener.closest('section')?.querySelector('h2') ?? null })
+  }
+
+  const closeAnimal = () => {
+    const focusTarget = selected?.opener.isConnected ? selected.opener : selected?.fallbackFocus
+    setSelected(null)
+    queueMicrotask(() => focusTarget?.focus())
   }
 
   if (path === '/signup') return <SignupPage navigate={navigate} />
@@ -285,7 +310,7 @@ export default function App() {
           <div className="dash-section-head">
             <div className="dash-title-row">
               <span className="dash-icon" aria-hidden="true">!</span>
-              <div><h2>분실동물</h2><p>최근 등록된 분실 신고를 확인해 주세요</p></div>
+              <div><h2 tabIndex={-1}>분실동물</h2><p>최근 등록된 분실 신고를 확인해 주세요</p></div>
             </div>
           </div>
 
@@ -298,7 +323,7 @@ export default function App() {
           />
           {!lost.loading && !lost.error && lostAnimals.length > 0 && (
             <div className="dash-grid">
-              {lostAnimals.map((animal) => <AnimalCard animal={animal} key={animal.id} />)}
+              {lostAnimals.map((animal) => <AnimalCard animal={animal} onOpen={openAnimal} key={animal.id} />)}
             </div>
           )}
         </section>
@@ -307,7 +332,7 @@ export default function App() {
           <div className="dash-section-head">
             <div className="dash-title-row">
               <span className="dash-icon" aria-hidden="true">⌂</span>
-              <div><h2>구조동물</h2><p>새로운 가족을 기다리는 동물이에요</p></div>
+              <div><h2 tabIndex={-1}>구조동물</h2><p>새로운 가족을 기다리는 동물이에요</p></div>
             </div>
             <div className="filter-row" aria-label="구조동물 종류">
               {([
@@ -337,12 +362,13 @@ export default function App() {
           />
           {!shelter.loading && !shelter.error && shelterAnimals.length > 0 && (
             <div className="dash-grid">
-              {shelterAnimals.map((animal) => <AnimalCard animal={animal} key={animal.id} />)}
+              {shelterAnimals.map((animal) => <AnimalCard animal={animal} onOpen={openAnimal} key={animal.id} />)}
             </div>
           )}
         </section>
 
       </main>
+      {selected && <AnimalDetailModal key={selected.animal.id} animal={selected.animal} onClosed={closeAnimal} />}
     </>
   )
 }

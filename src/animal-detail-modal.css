@@ -1,0 +1,71 @@
+body:has(.animal-dialog[open]) { overflow: hidden; }
+
+.animal-dialog {
+  inset: 0; width: min(1280px, 96vw); height: min(850px, 92dvh); max-width: none; max-height: none;
+  margin: auto; padding: 0; border: 0; border-radius: 22px; background: #fff; color: #18241e;
+  overflow: hidden; box-shadow: 0 28px 100px rgb(4 20 12 / 38%);
+}
+.animal-dialog[open] { display: block; }
+.animal-dialog::backdrop { background: rgb(12 24 17 / 70%); backdrop-filter: blur(7px); }
+.animal-dialog button { color: inherit; font: inherit; }
+.animal-dialog img { display: block; width: 100%; }
+.animal-dialog__frame { position: relative; display: grid; grid-template-columns: 50% 50%; width: 100%; height: 100%; }
+.animal-dialog__close {
+  position: absolute; z-index: 4; top: 16px; right: 16px; display: grid; width: 44px; height: 44px;
+  place-items: center; border: 1px solid #cad6cd; border-radius: 50%; background: rgb(255 255 255 / 94%);
+  font-size: 24px; cursor: pointer; box-shadow: 0 5px 20px rgb(20 45 32 / 14%);
+}
+.animal-dialog button:focus-visible, .animal-dialog a:focus-visible, .animal-dialog summary:focus-visible,
+.animal-dialog [tabindex]:focus-visible { outline: 3px solid #a6d957; outline-offset: -3px; }
+.animal-dialog__gallery { display: grid; grid-template-rows: minmax(0, 1fr) 96px; gap: 10px; min-width: 0; min-height: 0; padding: 16px; background: #e8eee5; }
+.animal-dialog__main-photo { position: relative; min-height: 0; overflow: hidden; border-radius: 18px; background: #dbe5da; }
+.animal-dialog__main-photo > img { height: 100%; object-fit: contain; }
+.animal-dialog__photo-empty { display: grid; width: 100%; height: 100%; place-items: center; color: #60756a; font-weight: 700; }
+.animal-dialog__photo-count { position: absolute; left: 14px; bottom: 14px; padding: 7px 10px; border-radius: 7px; background: rgb(11 29 20 / 82%); color: #fff; font-size: 12px; font-weight: 700; }
+.animal-dialog__thumbs { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px; min-height: 0; overflow-x: auto; }
+.animal-dialog__thumbs button { min-width: 70px; overflow: hidden; padding: 0; border: 2px solid transparent; border-radius: 10px; background: #dbe6d8; cursor: pointer; }
+.animal-dialog__thumbs button[aria-pressed=true] { border-color: #a8d85b; box-shadow: 0 0 0 2px rgb(168 216 91 / 22%); }
+.animal-dialog__thumbs img { height: 100%; object-fit: cover; }
+.animal-dialog__details { min-width: 0; min-height: 0; overflow-y: auto; padding: 42px 42px 36px; }
+.animal-dialog__details::-webkit-scrollbar-button, .animal-dialog__frame::-webkit-scrollbar-button,
+.animal-dialog::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+.animal-dialog__head { padding-right: 52px; }
+.animal-dialog__eyebrow { color: #205c42; font-size: 12px; font-weight: 800; letter-spacing: .1em; }
+.animal-dialog__head h2 { margin: 7px 0 6px; font-size: clamp(30px, 3vw, 42px); letter-spacing: -.06em; overflow-wrap: anywhere; }
+.animal-dialog__head p { margin: 0; color: #4f6057; font-size: 13px; line-height: 1.65; overflow-wrap: anywhere; }
+.animal-dialog__quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 22px 0 10px; }
+.animal-dialog__quick div { min-width: 0; padding: 12px; border: 1px solid #d9e2da; border-radius: 10px; background: #f8faf7; }
+.animal-dialog__quick span { display: block; margin-bottom: 5px; color: #4f6057; font-size: 12px; }
+.animal-dialog__quick strong { display: block; font-size: 13px; overflow-wrap: anywhere; }
+.animal-dialog__contact { display: grid; gap: 8px; margin-bottom: 10px; padding: 17px; border: 1px solid #bed0c1; border-radius: 13px; background: #fff; }
+.animal-dialog__contact a { display: flex; min-height: 44px; align-items: center; justify-content: center; border-radius: 9px; background: #205c42; color: #fff; font-size: 13px; font-weight: 800; text-decoration: none; }
+.animal-dialog__contact address { color: #405249; font-size: 13px; font-style: normal; line-height: 1.6; }
+.animal-dialog__contact span { color: #4f6057; font-size: 12px; }
+.animal-dialog details { margin-top: 10px; border: 1px solid #d9e2da; border-radius: 11px; background: #fff; }
+.animal-dialog summary { padding: 14px 16px; color: #26392e; font-size: 13px; font-weight: 800; cursor: pointer; }
+.animal-dialog dl { margin: 0; padding: 0 16px 14px; }
+.animal-dialog dl div { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 13px; padding: 10px 0; border-bottom: 1px solid #d9e2da; }
+.animal-dialog dl div:last-child { border-bottom: 0; }
+.animal-dialog dt { color: #4f6057; font-size: 12px; font-weight: 650; }
+.animal-dialog dd { min-width: 0; margin: 0; color: #213129; font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+.animal-dialog__state { grid-column: 1 / -1; display: grid; place-content: center; justify-items: center; padding: 40px; text-align: center; }
+.animal-dialog__state h2 { margin: 0 0 12px; font-size: 32px; }
+.animal-dialog__state p { color: #4f6057; }
+.animal-dialog__state button { padding: 10px 16px; border: 0; border-radius: 8px; background: #205c42; color: #fff; cursor: pointer; }
+
+@media (max-width: 960px), (max-height: 520px) {
+  .animal-dialog { width: min(100%, 720px); height: min(100dvh, 900px); }
+  .animal-dialog__frame { display: block; overflow-y: auto; }
+  .animal-dialog__close { position: sticky; float: right; top: 10px; margin: 10px 10px -54px 0; }
+  .animal-dialog__gallery { height: 470px; }
+  .animal-dialog__details { overflow: visible; padding: 30px 24px 40px; }
+  .animal-dialog__quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .animal-dialog { width: 100%; height: 100dvh; margin: 0; border-radius: 0; }
+  .animal-dialog__gallery { height: 390px; padding: 10px; grid-template-rows: minmax(0, 1fr) 76px; }
+  .animal-dialog__details { padding: 28px 18px 36px; }
+  .animal-dialog__head { padding-right: 42px; }
+  .animal-dialog dl div { grid-template-columns: 108px minmax(0, 1fr); }
+}
