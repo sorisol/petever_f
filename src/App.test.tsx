@@ -60,7 +60,7 @@ const shelterDetail = {
   shelterPhone: '02-3153-8542',
   publicData: {
     noticeNo: '서울-마포-2026-00142', desertionNo: '411313202600142', happenDt: '20261011',
-    happenPlace: '문화비축기지 앞', kindCd: '[개] 믹스견', colorCd: '갈색 · 흰색', age: '2024년생 추정',
+    happenPlace: '문화비축기지 앞', kindCd: '000114', colorCd: '갈색 · 흰색', age: '2024년생 추정',
     weight: '8.4kg', processState: '보호 중', sexCd: 'F', neuterYn: 'Y', specialMark: '사람을 좋아합니다.',
     careNm: '마포동물보호센터', careTel: '02-3153-8542', careAddr: '서울 마포구 매봉산로 31',
     orgNm: '서울특별시 마포구', popfile1: 'Y', popfile4: 'Y', evntImg: 'Y',
@@ -167,6 +167,8 @@ describe('concept-03 animal dashboard', () => {
     expect(await screen.findByRole('dialog')).toBeTruthy()
     expect(await screen.findByRole('heading', { name: '몽글이' })).toBeTruthy()
     expect(screen.getByText('서울-마포-2026-00142')).toBeTruthy()
+    expect(screen.getByText('믹스견')).toBeTruthy()
+    expect(screen.queryByText('000114')).toBeNull()
     expect(screen.getAllByText('사람을 좋아합니다.')).toHaveLength(2)
     expect(fetch).toHaveBeenCalledWith('/api/animals/1', expect.objectContaining({ signal: expect.any(AbortSignal) }))
 
@@ -180,6 +182,27 @@ describe('concept-03 animal dashboard', () => {
     expect(within(lostDialog).queryByLabelText('사진 선택')).toBeNull()
     expect(within(lostDialog).getByText('발생일')).toBeTruthy()
     expect(fetch).toHaveBeenCalledWith('/api/animals/2', expect.objectContaining({ signal: expect.any(AbortSignal) }))
+  })
+
+  it('does not fall back to a numeric raw breed code when the normalized name is missing', async () => {
+    const detailWithoutBreed = {
+      ...shelterDetail,
+      breedName: null,
+      publicData: { ...shelterDetail.publicData, kindCd: '000020' },
+    }
+    mockPages()
+    vi.mocked(fetch).mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url === '/api/animals/1') return response(detailWithoutBreed)
+      return response(url.includes('SHELTER_ANIMAL') ? shelterPage : lostPage)
+    })
+    render(<App />)
+    fireEvent.click(await screen.findByRole('button', { name: '몽글이 상세 보기' }))
+
+    const dialog = await screen.findByRole('dialog')
+    const breedRow = within(dialog).getByText('품종').closest('div')
+    expect(breedRow?.querySelector('dd')?.textContent).toBe('—')
+    expect(within(dialog).queryByText('000020')).toBeNull()
   })
 
   it('switches gallery images and restores focus after closing', async () => {
