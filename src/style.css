@@ -208,7 +208,8 @@ button { cursor: pointer; }
   border-radius: 14px;
   background: #fff;
 }
-.dash-card-photo { position: relative; height: 175px; }
+.dash-card-photo { position: relative; display: block; width: 100%; height: 175px; padding: 0; border: 0; background: #e4ede1; text-align: left; cursor: pointer; }
+.dash-card-photo:focus-visible { z-index: 1; outline: 3px solid #8fbd4d; outline-offset: 3px; }
 .animal-image { width: 100%; height: 100%; object-fit: cover; }
 .animal-image.fallback {
   display: grid;
