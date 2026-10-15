@@ -70,6 +70,7 @@ const sexNames: Record<string, string> = { M: '수컷', F: '암컷', Q: '미상'
 const neuterNames: Record<string, string> = { Y: '예', N: '아니오', U: '미상' }
 
 function displayValue(detail: AnimalDetail, key: AnimalDetailFieldKey) {
+  if (key === 'kindCd') return detail.breedName?.trim() || '—'
   const value = detail.publicData?.[key]?.trim()
   if (imageFields.has(key)) return value === 'Y' ? '등록됨' : '—'
   if (!value) return '—'
