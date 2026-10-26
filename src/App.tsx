@@ -4,6 +4,7 @@ import SignupPage from './SignupPage'
 import LoginDraftPage from './LoginDraftPage'
 import { csrfToken, isAccount, type Account } from './authApi'
 import AnimalDetailModal from './AnimalDetailModal'
+import ClinicBrowser from './ClinicBrowser'
 import './auth.css'
 
 type Animal = {
@@ -131,6 +132,10 @@ function isAnimalBrowserRoute(path: string) {
   return path === '/animals' || path === '/animals/' || /^\/animals\/\d+\/?$/.test(path)
 }
 
+function isClinicRoute(path: string) {
+  return path === '/clinics' || path === '/clinics/'
+}
+
 export default function App() {
   const [path, setPath] = useState(window.location.pathname)
   const [account, setAccount] = useState<Account | null>(null)
@@ -146,7 +151,7 @@ export default function App() {
   } | null>(null)
 
   useEffect(() => {
-    if (isAnimalBrowserRoute(path) || path === '/signup' || path === '/login') return
+    if (isAnimalBrowserRoute(path) || isClinicRoute(path) || path === '/signup' || path === '/login') return
     const controller = new AbortController()
     const speciesQuery = species ? `&species=${species}` : ''
     setShelter({ page: null, loading: true, error: false })
@@ -168,7 +173,7 @@ export default function App() {
   }, [path, species, retryVersion])
 
   useEffect(() => {
-    if (isAnimalBrowserRoute(path) || path === '/signup' || path === '/login') return
+    if (isAnimalBrowserRoute(path) || isClinicRoute(path) || path === '/signup' || path === '/login') return
     const controller = new AbortController()
     setLost((current) => ({ ...current, loading: true, error: false }))
 
@@ -198,7 +203,8 @@ export default function App() {
   useEffect(() => setSelected(null), [path])
 
   useEffect(() => {
-    if (account || path === '/signup' || path === '/login' || isAnimalBrowserRoute(path)) return
+    if (account || path === '/signup' || path === '/login'
+        || isAnimalBrowserRoute(path) || isClinicRoute(path)) return
     let active = true
     void fetch('/api/auth/session').then(async (response) => {
       if (!response.ok) return
@@ -248,6 +254,7 @@ export default function App() {
   if (isAnimalBrowserRoute(path)) {
     return <AnimalBrowser path={path} navigate={navigate} />
   }
+  if (isClinicRoute(path)) return <ClinicBrowser navigate={navigate} />
 
   return (
     <>
@@ -262,6 +269,9 @@ export default function App() {
           <a href="#rescue">구조동물</a>
           <a href="/animals" onClick={(event) => { event.preventDefault(); navigate('/animals') }}>
             전체 동물 보기
+          </a>
+          <a href="/clinics" onClick={(event) => { event.preventDefault(); navigate('/clinics') }}>
+            동물병원
           </a>
         </nav>
         <div className="dash-auth">
