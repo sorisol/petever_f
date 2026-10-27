@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import KakaoShelterMap from './KakaoShelterMap'
 import './animal-detail-modal.css'
 
 export type AnimalModalSummary = {
@@ -134,6 +135,7 @@ function DetailContent({ detail }: { detail: AnimalDetail }) {
   const isLost = detail.listingType === 'LOST_REPORT'
   const phone = data.careTel || detail.shelterPhone || ''
   const shelter = data.careNm || detail.shelterName || '보호소 정보 없음'
+  const address = data.careAddr?.trim() || ''
   const tel = phone.replace(/[^0-9+-]/g, '')
   const quick = [
     ['상태', data.processState || (isLost ? '분실 신고' : '보호 중')],
@@ -154,8 +156,9 @@ function DetailContent({ detail }: { detail: AnimalDetail }) {
     <section className="animal-dialog__contact" aria-label="보호소 연락처">
       <strong>{shelter}</strong>
       {tel && <a href={`tel:${tel}`}>{phone} 전화하기</a>}
-      <address>{data.careAddr || '보호장소 정보 없음'}</address>
+      <address>{address || '보호장소 정보 없음'}</address>
       <span>{data.orgNm || '관할기관 정보 없음'}</span>
+      {!isLost && address && <KakaoShelterMap name={shelter} address={address} />}
     </section>
     {(['basic', 'notice', 'support'] as const).map((group, index) => <details key={group} open={index === 0}>
       <summary>{groupNames[group]}</summary>

@@ -108,6 +108,7 @@ describe('veterinary clinic browser', () => {
     class FakeBounds { extend = vi.fn() }
     class FakeMap {
       setBounds = vi.fn()
+      setCenter = vi.fn()
       relayout = vi.fn()
       constructor(_container: HTMLElement, _options: object) {}
     }
@@ -122,6 +123,11 @@ describe('veterinary clinic browser', () => {
         LatLngBounds: FakeBounds,
         Map: FakeMap,
         Marker: FakeMarker,
+        services: {
+          Status: { OK: 'OK' },
+          AnalyzeType: { EXACT: 'EXACT' },
+          Geocoder: class { addressSearch() {} },
+        },
       },
     }
     const first = { id: 1, name: '첫 병원', latitude: 37.566, longitude: 126.978 }
