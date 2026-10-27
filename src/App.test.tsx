@@ -170,6 +170,8 @@ describe('concept-03 animal dashboard', () => {
     expect(screen.getByText('믹스견')).toBeTruthy()
     expect(screen.queryByText('000114')).toBeNull()
     expect(screen.getAllByText('사람을 좋아합니다.')).toHaveLength(2)
+    expect(screen.getByRole('region', { name: '보호소 위치' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: '카카오맵에서 주소 검색' })).toBeTruthy()
     expect(fetch).toHaveBeenCalledWith('/api/animals/1', expect.objectContaining({ signal: expect.any(AbortSignal) }))
 
     fireEvent.click(screen.getByRole('button', { name: '상세 모달 닫기' }))
@@ -181,7 +183,28 @@ describe('concept-03 animal dashboard', () => {
     expect(within(lostDialog).getByRole('img', { name: '등록된 사진 없음' })).toBeTruthy()
     expect(within(lostDialog).queryByLabelText('사진 선택')).toBeNull()
     expect(within(lostDialog).getByText('발생일')).toBeTruthy()
+    expect(within(lostDialog).queryByLabelText('보호소 위치')).toBeNull()
+    expect(document.getElementById('kakao-map-sdk')).toBeNull()
     expect(fetch).toHaveBeenCalledWith('/api/animals/2', expect.objectContaining({ signal: expect.any(AbortSignal) }))
+  })
+
+  it('does not offer a shelter map for a blank shelter address', async () => {
+    const detailWithoutAddress = {
+      ...shelterDetail,
+      publicData: { ...shelterDetail.publicData, careAddr: '   ' },
+    }
+    mockPages()
+    vi.mocked(fetch).mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url === '/api/animals/1') return response(detailWithoutAddress)
+      return response(url.includes('SHELTER_ANIMAL') ? shelterPage : lostPage)
+    })
+    render(<App />)
+    fireEvent.click(await screen.findByRole('button', { name: '몽글이 상세 보기' }))
+
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).queryByLabelText('보호소 위치')).toBeNull()
+    expect(document.getElementById('kakao-map-sdk')).toBeNull()
   })
 
   it('does not fall back to a numeric raw breed code when the normalized name is missing', async () => {

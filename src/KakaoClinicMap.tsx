@@ -7,15 +7,33 @@ export type MapClinic = {
   longitude: number | null
 }
 
-type KakaoMaps = {
+export type KakaoAddressResult = {
+  address_type: string
+  x: string
+  y: string
+}
+
+export type KakaoMaps = {
   load: (callback: () => void) => void
   LatLng: new (latitude: number, longitude: number) => unknown
   LatLngBounds: new () => { extend: (point: unknown) => void }
   Map: new (container: HTMLElement, options: object) => {
     setBounds: (bounds: unknown) => void
+    setCenter: (center: unknown) => void
     relayout: () => void
   }
   Marker: new (options: object) => { setMap: (map: unknown) => void }
+  services: {
+    Status: { OK: string }
+    AnalyzeType: { EXACT: string }
+    Geocoder: new () => {
+      addressSearch: (
+        address: string,
+        callback: (results: KakaoAddressResult[], status: string) => void,
+        options: { analyze_type: string; size: number },
+      ) => void
+    }
+  }
 }
 
 declare global {
@@ -26,35 +44,74 @@ declare global {
 
 let kakaoPromise: Promise<KakaoMaps> | null = null
 
+function readyMaps() {
+  const maps = window.kakao?.maps
+  return maps?.Map && maps.services?.Geocoder ? maps : null
+}
+
 export function loadKakaoMaps(key: string) {
-  if (window.kakao?.maps) return Promise.resolve(window.kakao.maps)
+  const ready = readyMaps()
+  if (ready) return Promise.resolve(ready)
   if (kakaoPromise) return kakaoPromise
   kakaoPromise = new Promise<KakaoMaps>((resolve, reject) => {
-    const existing = document.getElementById('kakao-map-sdk') as HTMLScriptElement | null
-    const script = existing ?? document.createElement('script')
-    const timeout = window.setTimeout(() => reject(new Error('Kakao map load timeout')), 10_000)
-    const finish = () => {
-      if (!window.kakao?.maps) {
-        window.clearTimeout(timeout)
-        reject(new Error('Kakao map SDK unavailable'))
+    let script = document.getElementById('kakao-map-sdk') as HTMLScriptElement | null
+    if (script?.dataset.kakaoState === 'failed') {
+      script.remove()
+      script = null
+    }
+    script ??= document.createElement('script')
+    let settled = false
+    let initializing = false
+    const cleanup = () => {
+      window.clearTimeout(timeout)
+      script.removeEventListener('load', finish)
+      script.removeEventListener('error', fail)
+    }
+    const fail = () => {
+      if (settled) return
+      settled = true
+      cleanup()
+      script.dataset.kakaoState = 'failed'
+      script.remove()
+      reject(new Error('Kakao map load failed'))
+    }
+    const succeed = () => {
+      const maps = readyMaps()
+      if (!maps) {
+        fail()
         return
       }
-      window.kakao.maps.load(() => {
-        window.clearTimeout(timeout)
-        resolve(window.kakao!.maps)
-      })
+      settled = true
+      cleanup()
+      script.dataset.kakaoState = 'loaded'
+      resolve(maps)
     }
-    script.addEventListener('load', finish, { once: true })
-    script.addEventListener('error', () => {
-      window.clearTimeout(timeout)
-      reject(new Error('Kakao map load failed'))
-    }, { once: true })
-    if (!existing) {
+    const finish = () => {
+      if (settled || initializing) return
+      initializing = true
+      script.dataset.kakaoState = 'loaded'
+      const maps = window.kakao?.maps
+      if (!maps?.load) {
+        fail()
+        return
+      }
+      maps.load(succeed)
+    }
+    const timeout = window.setTimeout(fail, 10_000)
+    script.addEventListener('load', finish)
+    script.addEventListener('error', fail)
+    if (!script.id) {
       script.id = 'kakao-map-sdk'
-      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&autoload=false`
+      script.dataset.kakaoState = 'loading'
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${encodeURIComponent(key)}&autoload=false&libraries=services`
       document.head.append(script)
+    } else if (window.kakao?.maps?.load || script.dataset.kakaoState === 'loaded') {
+      finish()
     }
-  }).catch((error) => {
+  }).then((maps) => {
+    kakaoPromise = null
+    return maps
+  }, (error) => {
     kakaoPromise = null
     throw error
   })
