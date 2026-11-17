@@ -51,22 +51,27 @@ export default function KakaoShelterMap({ name, address }: { name: string; addre
 
   useEffect(() => {
     if (!coordinate || !container.current || !key) return
+    const mapContainer = container.current
     let active = true
     let marker: InstanceType<KakaoMaps['Marker']> | null = null
     void loadKakaoMaps(key).then((maps) => {
-      if (!active || !container.current) return
+      if (!active || !mapContainer.isConnected) return
       const point = new maps.LatLng(coordinate.latitude, coordinate.longitude)
-      const map = new maps.Map(container.current, { center: point, level: 4, scrollwheel: false })
+      const map = new maps.Map(mapContainer, { center: point, level: 4, scrollwheel: false })
       marker = new maps.Marker({ map, position: point })
       map.relayout()
       map.setCenter(point)
       setState('ready')
     }).catch(() => {
-      if (active) setState('failed')
+      if (active) {
+        setState('failed')
+        setCoordinate(null)
+      }
     })
     return () => {
       active = false
       marker?.setMap(null)
+      mapContainer.replaceChildren()
     }
   }, [coordinate, key])
 
@@ -95,7 +100,7 @@ export default function KakaoShelterMap({ name, address }: { name: string; addre
       className="animal-dialog__shelter-map-canvas"
       role="region"
       aria-label={`${name} 위치 지도`}
-      hidden={state !== 'ready'}
+      hidden={!coordinate || state === 'failed'}
     />
     <a
       href={state === 'ready' ? mapUrl : searchUrl}
