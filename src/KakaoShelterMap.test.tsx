@@ -1,8 +1,8 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { createElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import KakaoShelterMap, { verifiedShelterCoordinate } from './KakaoShelterMap'
 import type { KakaoAddressResult, KakaoMaps } from './KakaoClinicMap'
-
 const exactResult: KakaoAddressResult = {
   address_type: 'ROAD_ADDR',
   x: '126.889',
@@ -23,11 +23,12 @@ function installKakao(results: KakaoAddressResult[], status = 'OK') {
     relayout: vi.fn(),
   }
   const marker = { setMap: vi.fn() }
+  const mapConstructor = vi.fn(function (_container: HTMLElement) { return map })
   const maps = {
     load: (callback: () => void) => callback(),
     LatLng: latLng,
     LatLngBounds: vi.fn(),
-    Map: vi.fn(function () { return map }),
+    Map: mapConstructor,
     Marker: vi.fn(function () { return marker }),
     services: {
       Status: { OK: 'OK' },
@@ -36,7 +37,7 @@ function installKakao(results: KakaoAddressResult[], status = 'OK') {
     },
   } as unknown as KakaoMaps
   window.kakao = { maps }
-  return { addressSearch, latLng, map }
+  return { addressSearch, latLng, map, mapConstructor }
 }
 
 beforeEach(() => {
@@ -78,6 +79,7 @@ describe('KakaoShelterMap', () => {
       { analyze_type: 'EXACT', size: 2 },
     )
     expect(kakao.latLng).toHaveBeenCalledWith(37.571, 126.889)
+    expect(kakao.mapConstructor.mock.calls[0][0].hidden).toBe(false)
     expect(screen.getByRole('region', { name: '마포/보호소,본관 위치 지도' }).hasAttribute('hidden')).toBe(false)
     expect(mapLink.getAttribute('href')).toContain(encodeURIComponent('마포/보호소,본관'))
     expect(mapLink.getAttribute('rel')).toBe('noopener noreferrer')
@@ -113,6 +115,36 @@ describe('KakaoShelterMap', () => {
     expect(await screen.findByText('정확한 위치를 확인하지 못했습니다.')).toBeTruthy()
     expect(screen.getByRole('button', { name: '다시 위치 확인' })).toBeTruthy()
     expect(document.getElementById('kakao-map-sdk')).toBeNull()
+  })
+
+  it('hides a map when construction fails', async () => {
+    const kakao = installKakao([exactResult])
+    kakao.mapConstructor.mockImplementationOnce(function (element: HTMLElement) {
+      element.append(document.createElement('span'))
+      throw new Error('map construction failed')
+    })
+    render(createElement(KakaoShelterMap, { name: 'Shelter', address: 'Seoul Mapo 31' }))
+    fireEvent.click(screen.getByRole('button'))
+    await waitFor(() => expect(kakao.mapConstructor).toHaveBeenCalledTimes(1))
+    const canvas = document.querySelector('.animal-dialog__shelter-map-canvas') as HTMLElement
+    await waitFor(() => expect(canvas.hidden).toBe(true))
+    await waitFor(() => expect(canvas.childNodes).toHaveLength(0))
+  })
+
+  it('clears old map DOM before recreating the map', async () => {
+    const kakao = installKakao([exactResult])
+    let childrenAtSecondCreation = -1
+    kakao.mapConstructor.mockImplementation(function (element: HTMLElement) {
+      if (kakao.mapConstructor.mock.calls.length === 1) element.append(document.createElement('span'))
+      else childrenAtSecondCreation = element.childNodes.length
+      return kakao.map
+    })
+    const view = render(createElement(KakaoShelterMap, { name: 'Shelter', address: 'Address 1' }))
+    fireEvent.click(screen.getByRole('button'))
+    await waitFor(() => expect(kakao.mapConstructor).toHaveBeenCalledTimes(1))
+    view.rerender(createElement(KakaoShelterMap, { name: 'Shelter', address: 'Address 2' }))
+    await waitFor(() => expect(kakao.mapConstructor).toHaveBeenCalledTimes(2))
+    expect(childrenAtSecondCreation).toBe(0)
   })
 
   it('shows only the search fallback when the map key is missing', () => {
