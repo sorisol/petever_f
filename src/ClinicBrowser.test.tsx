@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import KakaoClinicMap from './KakaoClinicMap'
 
@@ -20,6 +20,10 @@ const clinic = {
   longitude: 126.978,
   lastVerifiedAt: '2026-10-24T13:01:59Z',
 }
+
+beforeEach(() => {
+  vi.stubEnv('VITE_KAKAO_MAP_JS_KEY', '')
+})
 
 afterEach(() => {
   cleanup()

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import AnimalBrowser from './AnimalBrowser'
+import { isPlainLeftClick } from './AnimalListPage'
 import SignupPage from './SignupPage'
 import LoginDraftPage from './LoginDraftPage'
 import { csrfToken, isAccount, type Account } from './authApi'
@@ -136,8 +137,13 @@ function isClinicRoute(path: string) {
   return path === '/clinics' || path === '/clinics/'
 }
 
+function readLocation() {
+  return { pathname: window.location.pathname, search: window.location.search }
+}
+
 export default function App() {
-  const [path, setPath] = useState(window.location.pathname)
+  const [location, setLocation] = useState(readLocation)
+  const { pathname: path, search } = location
   const [account, setAccount] = useState<Account | null>(null)
   const [logoutError, setLogoutError] = useState('')
   const [species, setSpecies] = useState<Species>('')
@@ -195,9 +201,9 @@ export default function App() {
   const lostAnimals = lost.page?.content ?? []
 
   useEffect(() => {
-    const updatePath = () => setPath(window.location.pathname)
-    window.addEventListener('popstate', updatePath)
-    return () => window.removeEventListener('popstate', updatePath)
+    const updateLocation = () => setLocation(readLocation())
+    window.addEventListener('popstate', updateLocation)
+    return () => window.removeEventListener('popstate', updateLocation)
   }, [])
 
   useEffect(() => setSelected(null), [path])
@@ -229,10 +235,15 @@ export default function App() {
     }
   }
 
-  const navigate = (to: string, state: Record<string, unknown> = {}) => {
-    window.history.pushState(state, '', to)
-    setPath(to)
-  }
+  const navigate = useCallback((to: string, stateOrOptions: Record<string, unknown> = {}) => {
+    const current = window.location.pathname + window.location.search
+    if (current === to) return
+    const replace = stateOrOptions.replace === true
+    const historyState = replace ? {} : stateOrOptions
+    if (replace) window.history.replaceState(historyState, '', to)
+    else window.history.pushState(historyState, '', to)
+    setLocation(readLocation())
+  }, [])
 
   const openAnimal = (animal: Animal, opener: HTMLButtonElement) => {
     setSelected({ animal, opener, fallbackFocus: opener.closest('section')?.querySelector('h2') ?? null })
@@ -252,7 +263,7 @@ export default function App() {
   }
 
   if (isAnimalBrowserRoute(path)) {
-    return <AnimalBrowser path={path} navigate={navigate} />
+    return <AnimalBrowser path={path} search={search} navigate={navigate} />
   }
   if (isClinicRoute(path)) return <ClinicBrowser navigate={navigate} />
 
@@ -322,6 +333,11 @@ export default function App() {
               <span className="dash-icon" aria-hidden="true">!</span>
               <div><h2 tabIndex={-1}>분실동물</h2><p>최근 등록된 분실 신고를 확인해 주세요</p></div>
             </div>
+            <a className='dash-view-all' href='/animals?tab=lost' onClick={(event) => {
+              if (!isPlainLeftClick(event)) return
+              event.preventDefault()
+              navigate('/animals?tab=lost')
+            }}>전체보기 <span aria-hidden='true'>→</span></a>
           </div>
 
           <SectionState
@@ -361,6 +377,11 @@ export default function App() {
                 </button>
               ))}
             </div>
+            <a className='dash-view-all' href='/animals?tab=rescue' onClick={(event) => {
+              if (!isPlainLeftClick(event)) return
+              event.preventDefault()
+              navigate('/animals?tab=rescue')
+            }}>전체보기 <span aria-hidden='true'>→</span></a>
           </div>
 
           <SectionState

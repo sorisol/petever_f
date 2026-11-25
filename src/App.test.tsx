@@ -282,7 +282,30 @@ describe('concept-03 animal dashboard', () => {
 
     fireEvent.click(screen.getByRole('link', { name: '전체 동물 보기' }))
 
-    expect(await screen.findByRole('heading', { name: '동물 소식 둘러보기' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: '동물 전체보기' })).toBeTruthy()
+    expect(screen.getByRole('tab', { name: '분실동물' }).getAttribute('aria-selected')).toBe('true')
+  })
+
+  it('links each home preview to its matching twenty-item list tab', async () => {
+    mockPages()
+    render(<App />)
+    await screen.findByText('몽글이 · 믹스견')
+
+    const lostLink = within(document.querySelector('#lost') as HTMLElement)
+      .getByRole('link', { name: /전체보기/ })
+    const rescueLink = within(document.querySelector('#rescue') as HTMLElement)
+      .getByRole('link', { name: /전체보기/ })
+    expect(lostLink.getAttribute('href')).toBe('/animals?tab=lost')
+    expect(rescueLink.getAttribute('href')).toBe('/animals?tab=rescue')
+
+    vi.mocked(fetch).mockClear()
+    fireEvent.click(rescueLink)
+    expect(await screen.findByRole('heading', { name: '동물 전체보기' })).toBeTruthy()
+    expect(screen.getByRole('tab', { name: '구조동물' }).getAttribute('aria-selected')).toBe('true')
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/animals?listing_type=SHELTER_ANIMAL&page=0&size=20',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    )
   })
 
   it('refetches only shelter animals when the species filter changes', async () => {
