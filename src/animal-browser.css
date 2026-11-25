@@ -1,6 +1,7 @@
 .animal-shell { width: min(1120px, calc(100% - 40px)); margin: auto; padding-bottom: 80px; color: #213b30; }
 .animal-header { display: flex; align-items: center; justify-content: space-between; padding: 28px 0; border-bottom: 1px solid #dfe8df; color: #60756a; }
 .animal-brand { font-size: 1.65rem; font-weight: 800; letter-spacing: -.07em; text-decoration: none; color: #235c3d; }
+.animal-home-link { color: #2d6844; font-weight: 700; text-decoration: none; }
 .animal-intro { padding: 66px 0 40px; }
 .animal-eyebrow { color: #38774d; font-weight: 700; }
 .animal-intro h1, .animal-detail-body h1 { margin: 8px 0 12px; font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1.12; letter-spacing: -.06em; }
@@ -8,9 +9,25 @@
 .animal-filters { display: flex; gap: 12px; margin-bottom: 28px; }
 .animal-filters label { display: flex; align-items: center; gap: 8px; color: #4f6658; }
 .animal-filters select { border: 1px solid #ccdccc; border-radius: 10px; padding: 10px 34px 10px 12px; background: white; color: #213b30; }
+.animal-tabs { display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 24px; border-bottom: 1px solid #cad8cd; }
+.animal-tabs button { min-height: 48px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: #66786d; font-weight: 800; }
+.animal-tabs button[aria-selected='true'] { border-color: #235c3d; color: #173f31; }
+.animal-tabs button:focus-visible, .animal-card__button:focus-visible { outline: 3px solid #8fbd4d; outline-offset: 3px; }
+.animal-list-panel { min-height: 360px; }
+.animal-list-toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.animal-result-count { margin: 0 0 28px; color: #53675b; font-weight: 700; white-space: nowrap; }
 .animal-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
 .animal-card { overflow: hidden; border-radius: 18px; background: white; color: inherit; text-decoration: none; box-shadow: 0 8px 32px #20452b10; transition: transform .15s ease, box-shadow .15s ease; }
 .animal-card:hover { transform: translateY(-3px); box-shadow: 0 12px 38px #20452b1f; }
+.animal-card__button { display: block; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; }
+.animal-list-photo { display: grid; width: 100%; height: 230px; place-items: center; overflow: hidden; background: #e4ede1; }
+.animal-list-photo img { width: 100%; height: 100%; object-fit: cover; }
+.animal-list-photo__fallback { color: #739780; font-size: 4rem; }
+.animal-card__button > .animal-tag { margin: 16px 20px 0; }
+.animal-tag--lost { background: #fff0eb; color: #c94e3a; }
+.animal-card__copy { display: flex; flex-direction: column; gap: 6px; padding: 14px 20px 20px; }
+.animal-card__copy strong { font-size: 1.3rem; }
+.animal-card__copy span { color: #738174; }
 .animal-photo, .animal-detail-photo { display: grid; place-items: center; background: #e4ede1; color: #739780; }
 .animal-photo { height: 230px; font-size: 4rem; }
 .animal-photo img, .animal-detail-photo img { width: 100%; height: 100%; object-fit: cover; }
@@ -19,6 +36,9 @@
 .animal-card h2 { margin: 14px 0 6px; font-size: 1.3rem; }
 .animal-card p { margin: 0; color: #738174; }
 .animal-message { padding: 60px 20px; text-align: center; color: #697b6d; }
+.animal-message p { margin-top: 0; }
+.animal-message button { min-height: 42px; padding: 9px 16px; border: 1px solid #c8d9c8; border-radius: 10px; background: white; color: #24543a; font-weight: 700; }
+.animal-message--error { color: #a94435; }
 .animal-pagination { display: flex; justify-content: center; align-items: center; gap: 22px; margin-top: 34px; }
 .animal-pagination button { border: 1px solid #c8d9c8; border-radius: 10px; background: white; padding: 9px 18px; color: #24543a; cursor: pointer; }
 .animal-pagination button:disabled { opacity: .45; cursor: default; }
@@ -36,6 +56,8 @@
 .animal-shelter a { color: #236638; }
 
 @media (max-width: 760px) {
+  .animal-list-toolbar { align-items: stretch; flex-direction: column; gap: 0; }
+  .animal-result-count { margin-top: -12px; }
   .animal-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .animal-detail { grid-template-columns: 1fr; }
   .animal-detail-photo { min-height: 360px; }
@@ -48,4 +70,5 @@
   .animal-filters { flex-direction: column; align-items: flex-start; }
   .animal-cards { grid-template-columns: 1fr; }
   .animal-photo { height: 260px; }
+  .animal-list-photo { height: 260px; }
 }

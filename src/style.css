@@ -181,6 +181,23 @@ button { cursor: pointer; }
 .lost-dash .dash-icon { background: #ffe1d8; }
 .dash-section h2 { margin: 0 0 4px; font-size: 22px; letter-spacing: -.04em; }
 .dash-section-head p { margin: 0; color: #526159; font-size: 12px; }
+.dash-view-all {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #cfd9d1;
+  border-radius: 9px;
+  background: #fff;
+  color: #24543a;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.dash-view-all:hover { border-color: #24543a; }
+.dash-view-all:focus-visible { outline: 3px solid #8fbd4d; outline-offset: 3px; }
 .filter-row { display: flex; gap: 7px; }
 .filter-chip {
   padding: 8px 12px;
@@ -253,6 +270,7 @@ button { cursor: pointer; }
   .summary-item { padding: 16px; }
   .dash-section { padding: 20px 14px; }
   .dash-section-head { align-items: flex-start; flex-direction: column; }
+  .dash-view-all { width: 100%; justify-content: center; }
   .filter-row { width: 100%; overflow-x: auto; }
   .filter-chip { white-space: nowrap; }
   .dash-grid { grid-template-columns: 1fr 1fr; gap: 9px; }
